@@ -1,0 +1,22 @@
+version: '3'
+services:
+  mongo:
+    image: mongo
+    ports:
+      - "27017:27017"
+
+  backend:
+    build: ./Server
+    ports:
+      - "5001:5000"
+    environment:
+      - MONGO_URL=mongodb://mongo:27017/marketplace
+    depends_on:
+      - mongo
+
+  frontend:
+    build: ./Client
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
