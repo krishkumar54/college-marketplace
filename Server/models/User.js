@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema({
     lowercase: true,
     validate: {
       validator: function (value) {
-        // Validate email format
+        // Validate email form
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return emailRegex.test(value);
       },

@@ -6,7 +6,7 @@ const SellerSchema = new mongoose.Schema({
   college: String,
 });
 
-// Define the specifications schema
+// Define the specifications sche
 const SpecificationSchema = new mongoose.Schema({
   key: String,
   value: String,
