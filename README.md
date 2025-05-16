@@ -2,7 +2,7 @@
 
 Welcome to **Second Hand**, the eco-friendly e-commerce platform designed exclusively for college students! With our platform, students can buy and sell second-hand goods among themselves, creating a sustainable marketplace within their campus. This initiative not only promotes reusing products but also significantly reduces transportation costs as everything is exchanged within the campus itself.
 
-## Website Url
+## Website Urls
 
 https://second-hand-client.onrender.com/
 
