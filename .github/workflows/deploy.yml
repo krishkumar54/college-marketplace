@@ -1,3 +1,4 @@
+## Force rerun for clean SonarCloud CLI test
 name: CI/CD Pipeline
 
 on:
