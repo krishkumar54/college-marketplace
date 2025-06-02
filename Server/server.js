@@ -5,7 +5,9 @@ const userRoutes = require("./routes/userRoutes");
 const productRoutes = require("./routes/productRoutes");
 const connectDB = require("./config/db");
 
+// Connect to MongoDB
 connectDB();
+
 const app = express();
 
 // Middleware
@@ -18,12 +20,17 @@ app.use(
   })
 );
 
-// Routes
+// Health check or root route
+app.get("/", (req, res) => {
+  res.send("Backend is running.");
+});
+
+// API routes
 app.use("/api/users", userRoutes);
 app.use("/api/products", productRoutes);
 
 // Start the server
-const port = process.env.PORT || 8000;
+const port = process.env.PORT || 5001;
 app.listen(port, () => {
   console.log(`Server run on port ${port}`);
 });
