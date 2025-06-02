@@ -1,5 +1,4 @@
-# Force rerun for clean SonarCloud CLI test
-name: CI/CD Pipeline
+name: CI/CD Pipeline (Sonar Clean)
 
 on:
   push:
@@ -68,3 +67,5 @@ jobs:
             -Dsonar.sources=. \
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.login=$SONAR_TOKEN
+
+
