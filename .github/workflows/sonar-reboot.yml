@@ -1,4 +1,4 @@
-name: CI/CD Pipeline (Sonar Clean)
+name: CI/CD Pipeline (Sonar Clean ✅)
 
 on:
   push:
