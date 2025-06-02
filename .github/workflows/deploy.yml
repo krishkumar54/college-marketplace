@@ -40,10 +40,30 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      - uses: SonarSource/sonarcloud-github-action@v2
+      - name: Set up Java
+        uses: actions/setup-java@v3
         with:
-          organization: krishkumar54
-          projectKey: krishkumar54_college-marketplace
-          token: ${{ secrets.SONAR_TOKEN }}
+          java-version: '17'
+
+      - name: Cache SonarCloud packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
+      - name: Install SonarScanner CLI and Run Scan
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          curl -sSLo sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
+          unzip sonar-scanner.zip
+          ./sonar-scanner-*/bin/sonar-scanner \
+            -Dsonar.projectKey=krishkumar54_college-marketplace \
+            -Dsonar.organization=krishkumar54 \
+            -Dsonar.sources=. \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.login=$SONAR_TOKEN
