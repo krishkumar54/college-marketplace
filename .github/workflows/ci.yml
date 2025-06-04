@@ -21,9 +21,11 @@ jobs:
           node-version: 18
 
       - name: Install Dependencies
+        working-directory: Server
         run: npm install
 
       - name: Start Backend Server
+        working-directory: Server
         run: |
           nohup npm start &
           sleep 10
