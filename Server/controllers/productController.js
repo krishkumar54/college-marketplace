@@ -38,11 +38,11 @@ exports.getProductById = async (req, res) => {
   }
 };
 
-// ✅ Updated Delete a product by ID
+// Delete a product by ID
 exports.deleteProductById = async (req, res) => {
   try {
     const rawId = req.params.id;
-    const id = req.params.id.trim();// ✅ removes unwanted whitespace/newlines
+    const id = rawId.trim();
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ message: "Invalid product ID" });
@@ -56,7 +56,35 @@ exports.deleteProductById = async (req, res) => {
     res.status(200).json({ message: "Product successfully deleted" });
   } catch (error) {
     console.error("❌ Delete Error:", error.message, error.stack);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
 
+// Update a product by ID
+exports.updateProductById = async (req, res) => {
+  try {
+    const id = req.params.id.trim();
+    const updates = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid product ID" });
+    }
+
+    const product = await Product.findByIdAndUpdate(id, updates, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    res.status(200).json({
+      message: "Product successfully updated",
+      product,
+    });
+  } catch (error) {
+    console.error("❌ Update Error:", error.message, error.stack);
     res.status(500).json({ message: "Internal server error" });
   }
 };
