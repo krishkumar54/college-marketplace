@@ -10,16 +10,30 @@ jobs:
   zap_scan:
     name: OWASP ZAP Baseline Scan
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Start Backend Server
+        run: |
+          nohup npm start &
+          sleep 10
 
       - name: Run ZAP Baseline Scan
         run: |
           docker run --rm \
             -v $(pwd):/zap/wrk/:rw \
             ghcr.io/zaproxy/zaproxy:stable zap-baseline.py \
-            -t http://host.docker.internal:5001 \
+            -t http://localhost:5001 \
             -r zap_report.html
 
       - name: Upload ZAP Report
