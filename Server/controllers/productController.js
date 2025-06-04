@@ -1,4 +1,5 @@
 const Product = require("../models/Product");
+const mongoose = require("mongoose");
 
 // Create a product
 exports.createProduct = async (req, res) => {
@@ -37,48 +38,37 @@ exports.getProductById = async (req, res) => {
   }
 };
 
-// Update a product by ID
-exports.updateProductById = async (req, res) => {
-  try {
-    const product = await Product.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-    });
-    if (!product) {
-      return res.status(404).json({ message: "Product not found" });
-    }
-    res.status(200).json(product);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Internal server error" });
-  }
-};
-
-// Delete a product by ID
+// ✅ Updated Delete a product by ID
 exports.deleteProductById = async (req, res) => {
   try {
-    const product = await Product.findByIdAndDelete(req.params.id);
+    const rawId = req.params.id;
+    const id = req.params.id.trim();// ✅ removes unwanted whitespace/newlines
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid product ID" });
+    }
+
+    const product = await Product.findByIdAndDelete(id);
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
+
     res.status(200).json({ message: "Product successfully deleted" });
   } catch (error) {
-    console.error(error);
+    console.error("❌ Delete Error:", error.message, error.stack);
+
     res.status(500).json({ message: "Internal server error" });
   }
 };
 
+// Get products by user ID
 exports.getProductsByUser = async (req, res) => {
   try {
     const userId = req.params.userId;
-    // Validate userId (you can add more validation checks as needed)
     if (!userId) {
       return res.status(400).json({ error: "Invalid user ID" });
     }
-
-    // Fetch products listed by the user
     const products = await Product.find({ "uploadedBy._id": userId });
-
-    // Return the products in the response
     res.status(200).json(products);
   } catch (error) {
     console.error("Error fetching user products:", error);
@@ -109,7 +99,6 @@ exports.removeImageFromProduct = async (req, res) => {
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
-
     product.images.splice(req.params.imageIndex, 1);
     await product.save();
     res.status(200).json(product);
@@ -176,24 +165,18 @@ exports.removeProductSpecification = async (req, res) => {
   }
 };
 
+// Update product status
 exports.updateProductStatus = async (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
 
   try {
-    // Find the product by ID
     const product = await Product.findById(id);
-
     if (!product) {
       return res.status(404).json({ error: "Product not found" });
     }
-
-    // Update the status of the product
     product.status = status;
-
-    // Save the updated product
     await product.save();
-
     res.json(product);
   } catch (error) {
     console.error("Error updating product status: ", error);

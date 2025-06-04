@@ -1,36 +1,47 @@
+// ===============================
+// Express Server Setup (server.js)
+// ===============================
+
 const express = require("express");
-const bodyParser = require("body-parser");
+const dotenv = require("dotenv");
 const cors = require("cors");
-const userRoutes = require("./routes/userRoutes");
-const productRoutes = require("./routes/productRoutes");
 const connectDB = require("./config/db");
+const productRoutes = require("./routes/productRoutes");
+const userRoutes = require("./routes/userRoutes");
 
-// Connect to MongoDB
-connectDB();
+// Load environment variables
+dotenv.config();
 
+// Initialize Express App
 const app = express();
 
 // Middleware
-app.use(bodyParser.json({ limit: "50mb" }));
-app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
+app.use(cors());
 app.use(express.json());
-app.use(
-  cors({
-    origin: process.env.CLIENT_URL || "*",
-  })
-);
 
-// Health check or root route
+// Health Check Route
 app.get("/", (req, res) => {
-  res.send("Backend is running.");
+  res.send("✅ Backend is running.");
 });
 
-// API routes
-app.use("/api/users", userRoutes);
+// API Routes
 app.use("/api/products", productRoutes);
+app.use("/api/users", userRoutes);
 
-// Start the server
-const port = process.env.PORT || 5001;
-app.listen(port, () => {
-  console.log(`Server run on port ${port}`);
-});
+// Export for Testing
+module.exports = app;
+
+// Server Start (only if not in test mode)
+if (require.main === module) {
+  const PORT = process.env.PORT || 5001;
+  connectDB()
+    .then(() => {
+      app.listen(PORT, () => {
+        console.log(`🚀 Server running on port ${PORT}`);
+        console.log("✅ Express initialized");
+      });
+    })
+    .catch((err) => {
+      console.error("❌ Failed to connect to MongoDB:", err);
+    });
+}
