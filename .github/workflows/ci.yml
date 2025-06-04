@@ -1,15 +1,23 @@
-name: CI Pipeline
+name: CI Pipeline with ZAP Scan
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
 
 jobs:
   zap_scan:
-    name: OWASP ZAP Baseline Scan
+    name: OWASP ZAP Security Scan
     runs-on: ubuntu-latest
+
+    env:
+      MONGO_URI: ${{ secrets.MONGO_URI }}
+
+    services:
+      mongo:
+        image: mongo:4.4
+        ports:
+          - 27017:27017
 
     steps:
       - name: Checkout Repository
@@ -29,15 +37,15 @@ jobs:
         run: |
           npm start > server.log 2>&1 &
           sleep 15
-          curl --retry 5 --retry-delay 5 --fail http://localhost:5001 || (echo "Backend failed to start" && cat server.log && exit 1)
+          curl --retry 5 --retry-delay 5 --fail http://localhost:5001 || (echo "❌ Backend failed to start" && cat server.log && exit 1)
 
-      - name: Run ZAP Baseline Scan
+      - name: Run ZAP Automation Scan
         run: |
           docker run --rm \
-            -v $(pwd):/zap/wrk/:rw \
-            ghcr.io/zaproxy/zaproxy:stable zap-baseline.py \
-            -t http://localhost:5001 \
-            -r zap_report.html
+            -v ${{ github.workspace }}/zap.yaml:/zap/wrk/zap.yaml \
+            -v ${{ github.workspace }}:/zap/wrk/:rw \
+            ghcr.io/zaproxy/zaproxy:stable \
+            zap.sh -cmd -autorun zap.yaml
 
       - name: Upload ZAP Report
         uses: actions/upload-artifact@v4
