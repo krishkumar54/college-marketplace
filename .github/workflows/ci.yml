@@ -19,11 +19,11 @@ jobs:
           node-version: 18
 
       - name: Install dependencies
-        working-directory: server
+        working-directory: Server   # ⬅️ Capital S
         run: npm install
 
       - name: Run Tests with Coverage
-        working-directory: server
+        working-directory: Server   # ⬅️ Capital S
         env:
           MONGO_URI: ${{ secrets.MONGO_URI }}
         run: npm test -- --coverage
