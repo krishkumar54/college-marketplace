@@ -72,4 +72,4 @@ This project is licensed under the [MIT License](LICENSE.md) - see the [LICENSE.
 ---
 
 Thank you for using **Second Hand**! Happy buying and selling! 🌱🛍️
-# Trigger workflow
+# Trigger workflows
