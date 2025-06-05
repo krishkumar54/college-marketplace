@@ -10,9 +10,6 @@ jobs:
     name: SonarCloud Scan with Coverage
     runs-on: ubuntu-latest
 
-    env:
-      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -28,6 +25,8 @@ jobs:
 
       - name: Run Tests with Coverage
         working-directory: Server
+        env:
+          MONGO_URI: ${{ secrets.MONGO_URI }}  # ✅ required if DB is used in tests
         run: npm test -- --coverage
 
       - name: SonarCloud Scan
