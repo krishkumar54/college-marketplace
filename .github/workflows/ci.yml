@@ -1,4 +1,4 @@
-name: SonarCloud with Test Coverage
+name: CI Pipeline
 
 on:
   push:
@@ -6,8 +6,7 @@ on:
   pull_request:
 
 jobs:
-  sonarcloud:
-    name: SonarCloud Scan with Coverage
+  build-and-test:
     runs-on: ubuntu-latest
 
     steps:
@@ -20,26 +19,11 @@ jobs:
           node-version: 18
 
       - name: Install dependencies
-        working-directory: Server
+        working-directory: server
         run: npm install
 
       - name: Run Tests with Coverage
-        working-directory: Server
+        working-directory: server
         env:
-          MONGO_URI: ${{ secrets.MONGO_URI }} # optional if you use DB in tests
+          MONGO_URI: ${{ secrets.MONGO_URI }}
         run: npm test -- --coverage
-
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@v2
-        with:
-          projectBaseDir: Server
-          args: >
-            -Dsonar.projectKey=krishkumar54_college-marketplace
-            -Dsonar.organization=krishkumar54
-            -Dsonar.host.url=https://sonarcloud.io
-            -Dsonar.sources=.
-            -Dsonar.tests=tests
-            -Dsonar.test.inclusions=**/*.test.js,**/*.spec.js
-            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
