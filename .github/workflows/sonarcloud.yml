@@ -1,13 +1,17 @@
-name: SonarCloud Workflow
+name: SonarCloud with Test Coverage
 
 on:
   push:
     branches: [main]
+  pull_request:
 
 jobs:
   sonarcloud:
-    name: SonarCloud Scan
+    name: SonarCloud Scan with Coverage
     runs-on: ubuntu-latest
+
+    env:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
     steps:
       - name: Checkout code
@@ -22,16 +26,20 @@ jobs:
         working-directory: Server
         run: npm install
 
-      - name: Run tests with coverage
+      - name: Run Tests with Coverage
         working-directory: Server
         run: npm test -- --coverage
 
-      - name: Upload coverage to SonarCloud
+      - name: SonarCloud Scan
         uses: SonarSource/sonarqube-scan-action@v2
         with:
           args: >
             -Dsonar.projectKey=krishkumar54_college-marketplace
             -Dsonar.organization=krishkumar54
             -Dsonar.host.url=https://sonarcloud.io
+            -Dsonar.sources=Server
+            -Dsonar.tests=Server/tests
+            -Dsonar.test.inclusions=**/*.test.js,**/*.spec.js
+            -Dsonar.javascript.lcov.reportPaths=Server/coverage/lcov.info
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

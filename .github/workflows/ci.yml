@@ -1,4 +1,4 @@
-name: CI Pipeline with ZAP Scan
+name: SonarCloud with Test Coverage
 
 on:
   push:
@@ -6,49 +6,40 @@ on:
   pull_request:
 
 jobs:
-  zap_scan:
-    name: OWASP ZAP Security Scan
+  sonarcloud:
+    name: SonarCloud Scan with Coverage
     runs-on: ubuntu-latest
 
-    env:
-      MONGO_URI: ${{ secrets.MONGO_URI }}
-
-    services:
-      mongo:
-        image: mongo:4.4
-        ports:
-          - 27017:27017
-
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v3
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
 
-      - name: Install Dependencies
+      - name: Install dependencies
         working-directory: Server
         run: npm install
 
-      - name: Start Backend Server
+      - name: Run Tests with Coverage
         working-directory: Server
-        run: |
-          npm start > server.log 2>&1 &
-          sleep 15
-          curl --retry 5 --retry-delay 5 --fail http://localhost:5001 || (echo "❌ Backend failed to start" && cat server.log && exit 1)
+        env:
+          MONGO_URI: ${{ secrets.MONGO_URI }} # optional if you use DB in tests
+        run: npm test -- --coverage
 
-      - name: Run ZAP Automation Scan
-        run: |
-          docker run --rm \
-            -v ${{ github.workspace }}/zap.yaml:/zap/wrk/zap.yaml \
-            -v ${{ github.workspace }}:/zap/wrk/:rw \
-            ghcr.io/zaproxy/zaproxy:stable \
-            zap.sh -cmd -autorun zap.yaml
-
-      - name: Upload ZAP Report
-        uses: actions/upload-artifact@v4
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@v2
         with:
-          name: zap-security-report
-          path: zap_report.html
+          projectBaseDir: Server
+          args: >
+            -Dsonar.projectKey=krishkumar54_college-marketplace
+            -Dsonar.organization=krishkumar54
+            -Dsonar.host.url=https://sonarcloud.io
+            -Dsonar.sources=.
+            -Dsonar.tests=tests
+            -Dsonar.test.inclusions=**/*.test.js,**/*.spec.js
+            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

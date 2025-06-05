@@ -2,7 +2,7 @@ const Product = require("../models/Product");
 const mongoose = require("mongoose");
 
 // Create a product
-exports.createProduct = async (req, res) => {
+const createProduct = async (req, res) => {
   try {
     const product = new Product(req.body);
     await product.save();
@@ -14,7 +14,7 @@ exports.createProduct = async (req, res) => {
 };
 
 // Get all products
-exports.getAllProducts = async (req, res) => {
+const getAllProducts = async (req, res) => {
   try {
     const products = await Product.find();
     res.status(200).json(products);
@@ -25,7 +25,7 @@ exports.getAllProducts = async (req, res) => {
 };
 
 // Get a single product by ID
-exports.getProductById = async (req, res) => {
+const getProductById = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
     if (!product) {
@@ -39,7 +39,7 @@ exports.getProductById = async (req, res) => {
 };
 
 // Delete a product by ID
-exports.deleteProductById = async (req, res) => {
+const deleteProductById = async (req, res) => {
   try {
     const rawId = req.params.id;
     const id = rawId.trim();
@@ -61,7 +61,7 @@ exports.deleteProductById = async (req, res) => {
 };
 
 // Update a product by ID
-exports.updateProductById = async (req, res) => {
+const updateProductById = async (req, res) => {
   try {
     const id = req.params.id.trim();
     const updates = req.body;
@@ -90,7 +90,7 @@ exports.updateProductById = async (req, res) => {
 };
 
 // Get products by user ID
-exports.getProductsByUser = async (req, res) => {
+const getProductsByUser = async (req, res) => {
   try {
     const userId = req.params.userId;
     if (!userId) {
@@ -105,7 +105,7 @@ exports.getProductsByUser = async (req, res) => {
 };
 
 // Add an image to a product
-exports.addImageToProduct = async (req, res) => {
+const addImageToProduct = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
     if (!product) {
@@ -121,7 +121,7 @@ exports.addImageToProduct = async (req, res) => {
 };
 
 // Remove an image from a product
-exports.removeImageFromProduct = async (req, res) => {
+const removeImageFromProduct = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
     if (!product) {
@@ -137,7 +137,7 @@ exports.removeImageFromProduct = async (req, res) => {
 };
 
 // Add a specification to a product
-exports.addSpecificationToProduct = async (req, res) => {
+const addSpecificationToProduct = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
     if (!product) {
@@ -153,7 +153,7 @@ exports.addSpecificationToProduct = async (req, res) => {
 };
 
 // Update a specification of a product
-exports.updateProductSpecification = async (req, res) => {
+const updateProductSpecification = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
     if (!product) {
@@ -174,7 +174,7 @@ exports.updateProductSpecification = async (req, res) => {
 };
 
 // Remove a specification from a product
-exports.removeProductSpecification = async (req, res) => {
+const removeProductSpecification = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
     if (!product) {
@@ -194,7 +194,7 @@ exports.removeProductSpecification = async (req, res) => {
 };
 
 // Update product status
-exports.updateProductStatus = async (req, res) => {
+const updateProductStatus = async (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
 
@@ -210,4 +210,20 @@ exports.updateProductStatus = async (req, res) => {
     console.error("Error updating product status: ", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
+};
+
+// ✅ Export all functions as an object
+module.exports = {
+  createProduct,
+  getAllProducts,
+  getProductById,
+  deleteProductById,
+  updateProductById,
+  getProductsByUser,
+  addImageToProduct,
+  removeImageFromProduct,
+  addSpecificationToProduct,
+  updateProductSpecification,
+  removeProductSpecification,
+  updateProductStatus,
 };

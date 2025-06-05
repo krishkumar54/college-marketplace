@@ -2,17 +2,14 @@
 // Express Server Setup (server.js)
 // ===============================
 
+require("dotenv").config(); // Load env variables early
+
 const express = require("express");
-const dotenv = require("dotenv");
 const cors = require("cors");
 const connectDB = require("./config/db");
 const productRoutes = require("./routes/productRoutes");
 const userRoutes = require("./routes/userRoutes");
 
-// Load environment variables
-dotenv.config();
-
-// Initialize Express App
 const app = express();
 
 // Middleware
@@ -28,10 +25,10 @@ app.get("/", (req, res) => {
 app.use("/api/products", productRoutes);
 app.use("/api/users", userRoutes);
 
-// Export for Testing
+// Export the app for testing
 module.exports = app;
 
-// Server Start (only if not in test mode)
+// Start server only if run directly (not during test)
 if (require.main === module) {
   const PORT = process.env.PORT || 5001;
   connectDB()
