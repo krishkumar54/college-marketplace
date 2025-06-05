@@ -5,6 +5,7 @@ import { useAuth } from "../context/authContext";
 const Login = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -20,23 +21,33 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Send a POST request to log in the user
-    const response = await fetch(
-      `${process.env.REACT_APP_BASE_URL}/api/users/login`,
-      {
-        method: "POST",
-        body: JSON.stringify(formData),
-        headers: { "Content-Type": "application/json" },
+
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/users/login`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Login failed");
       }
-    );
-    if (response.ok) {
+
       const data = await response.json();
+
       login({
-        id: data.user._id, // You should modify this to match your response
+        id: data.user._id,
         name: data.user.fullName,
         college: data.user.college,
       });
+
       navigate("/home");
+    } catch (error) {
+      console.error("❌ Login Error:", error.message);
+      alert("Login failed. Please check your credentials.");
     }
   };
 
