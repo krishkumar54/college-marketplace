@@ -60,53 +60,62 @@ const AddProduct = () => {
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    try {
+      // Validate form data
+      if (!formData.name || !formData.category || !formData.description || !formData.price) {
+        alert('Please fill in all required fields');
+        return;
+      }
 
-    // Convert uploaded images to base64 strings
-    const imagePromises = formData.images.map((image) =>
-      getBase64(image).catch((error) =>
-        console.error("Error converting image:", error)
-      )
-    );
+      if (!formData.images || formData.images.length === 0) {
+        alert('Please upload at least one image');
+        return;
+      }
 
-    // Wait for all images to be converted to base64
-    Promise.all(imagePromises)
-      .then((base64Images) => {
-        // Add the base64 image strings to formData
-
-        // Make the POST request
-        fetch(`${process.env.REACT_APP_BASE_URL}/api/products/`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            ...formData,
-            images: base64Images,
-            uploadedBy: {
-              _id: user.id,
-              name: user.name,
-              college: user.college,
-            },
-          }),
+      // Convert uploaded images to base64 strings
+      const imagePromises = formData.images.map((image) =>
+        getBase64(image).catch((error) => {
+          console.error("Error converting image:", error);
+          throw new Error("Failed to convert image to base64");
         })
-          .then((response) => {
-            if (response.ok) {
-              // Product was successfully added
-              // You can redirect the user or show a success message
-              console.log("Product added successfully!");
-              navigate("/home");
-            } else {
-              // Handle errors, e.g., show an error message to the user
-              console.error("Failed to add product.");
-            }
-          })
-          .catch((error) => {
-            console.error("Error:", error);
-          });
-      })
-      .catch((error) => {
-        console.error("Error converting images:", error);
+      );
+
+      // Wait for all images to be converted to base64
+      const base64Images = await Promise.all(imagePromises);
+
+      // Make the POST request
+      const response = await fetch(`${process.env.REACT_APP_BASE_URL}/api/products/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...formData,
+          images: base64Images,
+          uploadedBy: {
+            _id: user.id,
+            name: user.name,
+            college: user.college,
+          },
+        }),
       });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert("Product added successfully!");
+        navigate("/home");
+      } else {
+        // Handle specific error messages from the backend
+        const errorMessage = data.message || "Failed to add product";
+        alert(errorMessage);
+        console.error("Server error:", data);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert(error.message || "An unexpected error occurred");
+    }
   };
 
   // Function to convert an image file to base64

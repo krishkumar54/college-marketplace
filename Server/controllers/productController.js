@@ -4,12 +4,55 @@ const mongoose = require("mongoose");
 // Create a product
 const createProduct = async (req, res) => {
   try {
+    // Validate required fields
+    const requiredFields = ['name', 'category', 'description', 'price', 'images', 'uploadedBy'];
+    const missingFields = requiredFields.filter(field => !req.body[field]);
+    
+    if (missingFields.length > 0) {
+      return res.status(400).json({ 
+        message: `Missing required fields: ${missingFields.join(', ')}`,
+        error: 'VALIDATION_ERROR'
+      });
+    }
+
+    // Validate images array
+    if (!Array.isArray(req.body.images) || req.body.images.length === 0) {
+      return res.status(400).json({ 
+        message: 'At least one image is required',
+        error: 'VALIDATION_ERROR'
+      });
+    }
+
+    // Validate price is a positive number
+    if (isNaN(req.body.price) || parseFloat(req.body.price) <= 0) {
+      return res.status(400).json({ 
+        message: 'Price must be a positive number',
+        error: 'VALIDATION_ERROR'
+      });
+    }
+
     const product = new Product(req.body);
     await product.save();
-    res.status(201).json(product);
+    
+    res.status(201).json({
+      message: 'Product created successfully',
+      product
+    });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Internal server error" });
+    console.error('Product creation error:', error);
+    
+    // Handle mongoose validation errors
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({
+        message: 'Validation error',
+        error: error.message
+      });
+    }
+    
+    res.status(500).json({ 
+      message: 'Failed to create product',
+      error: error.message
+    });
   }
 };
 
